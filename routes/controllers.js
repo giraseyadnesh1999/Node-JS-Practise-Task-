@@ -2,6 +2,8 @@ const User = require("../Model/Schema");
 const express = require("express");
 const router = express();
 const bcrypt = require("bcrypt")
+const jwt = require('jsonwebtoken');
+const auth = require("../middleware/auth");
 debugger
 router.post("/register", async (req, res) => {
   try {
@@ -15,7 +17,7 @@ router.post("/register", async (req, res) => {
 
     // hash the password
     const salt = await bcrypt.genSalt(10);
-    const data = await bcrypt.hash(password,salt);
+    const hashedPassword = await bcrypt.hash(password,salt);
     // create a new user
     user = new User({ name, email, password:hashedPassword });
     await user.save();
@@ -44,7 +46,7 @@ router.post("/login", async (req, res) => {
       throw new Error("Invalid email or password");
     }
     // Generate access token
-    const accessToken = jwt.sign({ email: user.email }, "secret");
+    const accessToken = jwt.sign({ email: user.email }, process.env.secretkey);
     // Generate refresh token
     const refreshToken = jwt.sign({ email: user.email }, "secret", {
       expiresIn: "1h",
@@ -71,10 +73,14 @@ router.post("/refreshToken", async (req, res) => {
     const accessToken = jwt.sign({ email: user.email }, "secret");
     res.json({ accessToken });
   } catch (error) {
+    console.log(error)
     res.status(400).send(error.message);
   }
 });
 
+router.get("/send",auth,(req,res)=>{
+  res.send("You your token verified")
+})
 // Search api by given in name
 router.get("/search/:key",async(req,res)=>{
      let data = await User.find(

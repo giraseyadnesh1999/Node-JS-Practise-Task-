@@ -2,15 +2,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require("cors");
+require('dotenv').config()
 const userroute = require("./routes/controllers")
 const mongoose = require("mongoose")
+// var myId = new mongoose.Types.ObjectId();
 const app = express()
 app.use(cors());
-const port = 3000
+const port = process.env.production_port
+// console.log(myId)
 app.use(bodyParser.json());
 app.use("/api/",userroute)
 
-mongoose.connect("mongodb+srv://Ycompany:Yadnesha%406354@cluster0.0ynjx.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true,
+mongoose.connect(process.env.mongoDb, { useNewUrlParser: true,
 useUnifiedTopology: true,
 // useCreateIndex: true,
 // useFindAndModify: false,
