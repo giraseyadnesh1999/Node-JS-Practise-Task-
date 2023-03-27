@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require("cors");
 require('dotenv').config()
 const userroute = require("./routes/controllers")
+const rentuserroute = require("./routes/rentUserroutes")
 const mongoose = require("mongoose")
 // var myId = new mongoose.Types.ObjectId();
 const app = express()
@@ -12,6 +13,7 @@ const port = process.env.production_port
 // console.log(myId)
 app.use(bodyParser.json());
 app.use("/api/",userroute)
+app.use("/api/user",rentuserroute)
 
 mongoose.connect(process.env.mongoDb, { useNewUrlParser: true,
 useUnifiedTopology: true,

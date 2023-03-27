@@ -1,10 +1,26 @@
 const User = require("../Model/Schema");
 const express = require("express");
 const router = express();
-const bcrypt = require("bcrypt")
-const jwt = require('jsonwebtoken');
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
-debugger
+const multer = require("multer");
+debugger;
+const imgUpload = multer({
+  dest: "public",
+  limits: { fileSize: "1000000" },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpeg|png|jpg)$/)) {
+      return cb(new Error("please upload a jpg/png/jpeg image"));
+    }
+    cb(undefined, true);
+  },
+});
+
+router.post("/imageUpload", imgUpload.single("upload"), (req, res) => {
+  res.send("Image upload Succesfully");
+});
+
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -17,9 +33,9 @@ router.post("/register", async (req, res) => {
 
     // hash the password
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password,salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
     // create a new user
-    user = new User({ name, email, password:hashedPassword });
+    user = new User({ name, email, password: hashedPassword });
     await user.save();
 
     return res.status(201).json({ message: "User created" });
@@ -73,24 +89,23 @@ router.post("/refreshToken", async (req, res) => {
     const accessToken = jwt.sign({ email: user.email }, "secret");
     res.json({ accessToken });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(400).send(error.message);
   }
 });
 
-router.get("/send",auth,(req,res)=>{
-  res.send("You your token verified")
-})
+router.get("/send", auth, (req, res) => {
+  res.send("You your token verified");
+});
 // Search api by given in name
-router.get("/search/:key",async(req,res)=>{
-     let data = await User.find(
-      {
-        "$or":[
-          {name :{$regex:req.params.key}}
-        ]
-      }
-     )
-     console.log(data)
-     res.send(data)
-})
+router.get("/search/:key", async (req, res) => {
+  let data = await User.find({
+    $or: [{ name: { $regex: req.params.key } }],
+  });
+  console.log(data);
+  res.send(data);
+});
+
+
 module.exports = router;
+//rm -rf .git delete github repo
