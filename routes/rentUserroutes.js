@@ -37,19 +37,17 @@ router.get("/getlistrentflatusers", async (req, res) => {
 });
 
 router.delete("/deleteusersshowflat/:id", async (req, res) => {
-  console.log("dd", req.params.id);
   try {
-    const deletemylist = await rentUsermodel.findByIdAndDelete({
-      id: req.params.id,
-    });
-    console.log(deletemylist);
+    const task = await rentUsermodel.findOneAndDelete({ _id: req.params.id })
+
     if (!task) {
-      res.status(404).send("rentflat not found");
+        res.status(404).send()
     }
-    res.send(deletemylist);
-  } catch (e) {
-    res.status(500).send();
-  }
+
+    res.send(task)
+} catch (e) {
+    res.status(500).send()
+}
 });
 
 router.patch("/updaterentusercard/:id", async (req, res) => {
